@@ -6,7 +6,7 @@ import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-co
 const typeDefs = gql`
     type Site @exclude(operations: [CREATE, UPDATE, DELETE]) {
         area: Float
-        artifactCollections: [ArtifactCollection] @relationship(type: "CONTAINS_COLLECTION", direction: IN)
+        artifactCollections: [ArtifactCollection] @relationship(type: "HAS_COLLECTION", direction: OUT)
         beginAge: Int
         beginPhase: Int
         country: String
@@ -14,10 +14,10 @@ const typeDefs = gql`
         culture: String
         endAge: Int
         endPhase: Int
-        features: [Feature] @relationship(type: "HAS_FEATURE", direction: IN)
+        features: [Feature] @relationship(type: "HAS_FEATURE", direction: OUT)
         # functionalStrati: [???]
-        # horizontalFeatures: [???]
-        # horizontalSubFeatures: [???]
+        # horizontalFeatures: [???] # possibly also relates to Features
+        # horizontalSubFeatures: [???] # possibly also relates to Features
         hu2: Int
         hu4: Int
         hu6: Int
@@ -37,10 +37,10 @@ const typeDefs = gql`
         roomPeriods: [Int]
         # percentages: [???]
         periods: [Int]
-        provenance: [Provenance]
-        provenanceEvents: [ProvenanceEvent]
+        provenance: [Provenance] @relationship(type: "HAS_PROVENANCE", direction: OUT)
+        provenanceEvents: [ProvenanceEvent] @relationship(type: "HAS_PROVENANCE_EVENT", direction: OUT)
         state: String
-        systemMaps: [SystemMap]
+        systemMaps: [SystemMap] @relationship(type: "HAS_SYSTEM_MAP", direction: OUT)
         # units: [???]
         # uuid: ID!
         # verticalStrati: [???]
@@ -49,14 +49,14 @@ const typeDefs = gql`
 
 
     type ArtifactCollection @exclude(operations: [CREATE, UPDATE, DELETE]) {
-        artifactType: ArtifactType
+        artifactType: ArtifactType @relationship(type: "IS_OF_TYPE", direction: OUT)
         count: Int
         # functionalStratum: ???
         # horizontalFeature: ???
         # horizontalSubFeature: ???
         # level: ???
         # locus: ???
-        site: Site @relationship(type: "CONTAINS_COLLECTION", direction: OUT) # (uuid?)
+        # site: Site @relationship(type: "HAS_COLLECTION", direction: IN) # (uuid?)
         source: String
         # unit: ???
         # uuid: ID!
@@ -71,7 +71,7 @@ const typeDefs = gql`
         isSubsurface: Boolean
         isScreened: Boolean
         # nodes: [???]
-        people: [People]
+        people: [People] @relationship(type: "RECORDED_BY", direction: OUT)
         # source: ???
         sourceDisplayName: String
         subSection: String
@@ -105,10 +105,10 @@ const typeDefs = gql`
         # orientation: ???
         position: String
         primary: Boolean
-        provenance: [Provenance]
+        provenance: [Provenance] @relationship(type: "HAS_PROVENANCE", direction: OUT)
         public: Boolean
         relationToPlaza: String
-        sites: [Site] @relationship(type: "HAS_FEATURE", direction: OUT)
+        sites: [Site] @relationship(type: "HAS_FEATURE", direction: IN)
         shape: String
         storiesMax: Int
         storiesMin: Int
@@ -154,7 +154,7 @@ const typeDefs = gql`
     }
 
     type SystemMap @exclude(operations: [CREATE, UPDATE, DELETE]) {
-        site: String # uuid of site?
+        site: Site @relationship(type: "HAS_SYSTEM_MAP", direction: OUT)
         system: String
         # uuid: ID!
         value: String
@@ -164,7 +164,7 @@ const typeDefs = gql`
         artifactType: String
         beginAge: Int
         canChronologyBuilding: Boolean
-        ceramicWare: CeramicWare
+        ceramicWare: CeramicWare @relationship(type: "HAS_WARE", direction: OUT)
         decoration: String
         endAge: Int
         isCorrugated: Boolean
@@ -188,14 +188,17 @@ const typeDefs = gql`
     }
 
     type ProvenanceEvent @exclude(operations: [CREATE, UPDATE, DELETE]) {
-        provenance: Provenance
+        provenance: Provenance @relationship(type: "HAS_PROVENANCE", direction: OUT)
         uuid: ID!
     }
 `;
 
 const driver = neo4j.driver(
     process.env.NEO4J_URI,
-    neo4j.auth.basic(process.env.NEO4J_USER, process.env.NEO4J_PASSWORD)
+    neo4j.auth.basic(
+        process.env.NEO4J_USER, 
+        process.env.NEO4J_PASSWORD
+    )
 );
 
 const neoSchema = new Neo4jGraphQL({ typeDefs, driver });
