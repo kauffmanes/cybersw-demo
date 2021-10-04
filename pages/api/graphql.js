@@ -205,8 +205,9 @@ const neoSchema = new Neo4jGraphQL({ typeDefs, driver });
 const apolloServer = new ApolloServer({
     schema: neoSchema.schema,
     playground: true,
+    introspection: true,
     plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
-  });
+});
 
 const startServer = apolloServer.start();
 
@@ -220,6 +221,7 @@ export default async function handler(req, res) {
     // }
 
     await startServer;
+
     await apolloServer.createHandler({
         path: "/api/graphql",
     })(req, res);
