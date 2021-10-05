@@ -11,15 +11,22 @@
   "dependencies": {
     "@neo4j/graphql": "^2.2.0",
     "apollo-server-micro": "^3.3.0",
+    "daisyui": "^1.14.2",
     "graphql": "^15.0.0",
+    "leaflet": "^1.7.1",
     "micro": "^9.3.4",
     "neo4j-driver": "^4.3.3",
     "next": "11.1.2",
     "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "react-dom": "17.0.2",
+    "react-leaflet": "^3.2.1"
   },
   "devDependencies": {
+    "@types/leaflet": "^1.7.5",
+    "autoprefixer": "^10.3.7",
     "eslint": "7.32.0",
-    "eslint-config-next": "11.1.2"
+    "eslint-config-next": "11.1.2",
+    "postcss": "^8.3.9",
+    "tailwindcss": "^2.2.16"
   }
 }
